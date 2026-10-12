@@ -1,0 +1,5 @@
+{
+  "name": "Analyzer - AI Statistiky",
+  "description": "Moderní React aplikace pro analýzu CSV dotazníků. Vizualizuje odpovědi, zařízení a textová data pomocí interaktivních grafů a přehledných tabulek.",
+  "requestFramePermissions": []
+}
