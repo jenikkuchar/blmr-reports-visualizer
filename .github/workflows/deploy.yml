@@ -34,7 +34,7 @@ jobs:
           test -n "$STATICRYPT_PASSWORD" || { echo "Chybí secret STATICRYPT_PASSWORD"; exit 1; }
           test -n "$STATICRYPT_SALT" || { echo "Chybí secret STATICRYPT_SALT"; exit 1; }
           npx -y staticrypt@3.5.4 dist/index.html -d dist -c false \
-            --salt "$STATICRYPT_SALT" --remember 30 \
+            --salt "$STATICRYPT_SALT" --remember 30 --short \
             --template-title "$APP_NAME · přihlášení" \
             --template-instructions "Tento nástroj je chráněný heslem." \
             --template-placeholder "Heslo" \
