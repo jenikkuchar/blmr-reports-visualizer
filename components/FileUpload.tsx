@@ -11,15 +11,46 @@ const FileUpload: React.FC<FileUploadProps> = ({ onDataLoaded }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const [isDragOver, setIsDragOver] = useState(false);
+
+  const handleFile = (file: File) => {
+    if (!/\.(csv|txt)$/i.test(file.name)) {
+      alert("Podporovány jsou soubory .csv a .txt");
+      return;
+    }
+    setIsProcessing(true);
+    // Use setTimeout to allow UI to update to processing state before heavy parsing begins
+    setTimeout(() => {
+      parseFile(file);
+    }, 100);
+  };
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      setIsProcessing(true);
-      // Use setTimeout to allow UI to update to processing state before heavy parsing begins
-      setTimeout(() => {
-        parseFile(file);
-      }, 100);
-    }
+    if (file) handleFile(file);
+    // Allow selecting the same file again
+    event.target.value = '';
+  };
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    if (isProcessing) return;
+    event.dataTransfer.dropEffect = 'copy';
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+    // Ignore leaving into a child element of the dropzone
+    if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragOver(false);
+    if (isProcessing) return;
+    const file = event.dataTransfer.files?.[0];
+    if (file) handleFile(file);
   };
 
   const parseFile = (file: File) => {
@@ -50,42 +81,49 @@ const FileUpload: React.FC<FileUploadProps> = ({ onDataLoaded }) => {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 text-center transition-all hover:shadow-md">
-      <div className="flex flex-col items-center justify-center space-y-4">
-        <div className={`p-4 rounded-full transition-colors ${isProcessing ? 'bg-blue-100 dark:bg-blue-900/50' : 'bg-blue-50 dark:bg-blue-900/30'}`}>
-          {isProcessing ? (
-             <Loader2 className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-spin" />
-          ) : (
-             <Upload className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-          )}
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            {isProcessing ? 'Zpracovávám data...' : 'Načtěte CSV soubor'}
-          </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            {isProcessing ? 'Prosím čekejte, analyzuji soubor.' : 'Podporovány jsou soubory .csv a .txt'}
-          </p>
-        </div>
-        
-        <input 
-          type="file" 
-          ref={fileInputRef}
-          accept=".csv,.txt"
-          onChange={handleFileChange}
-          className="hidden" 
-          disabled={isProcessing}
-        />
-        
-        {!isProcessing && (
-          <button 
-            onClick={() => fileInputRef.current?.click()}
-            className="px-6 py-2.5 bg-blue-600 dark:bg-blue-500 text-white font-medium text-sm rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900 transition-colors"
-          >
-            Vybrat soubor
-          </button>
+    <div
+      onDragOver={handleDragOver}
+      onDragEnter={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      className={`rounded-panel border border-dashed px-3.5 py-7 sm:px-5 sm:py-10 flex flex-col items-center text-center gap-2.5 transition-colors ${
+        isProcessing || isDragOver
+          ? 'border-accent bg-accent-soft'
+          : 'border-line-hover bg-white/[.02] hover:border-accent hover:bg-accent-soft'
+      }`}
+    >
+      <div className="w-[52px] h-[52px] rounded-full bg-accent-soft text-accent grid place-items-center">
+        {isProcessing ? (
+          <Loader2 className="w-6 h-6 animate-spin" strokeWidth={1.8} />
+        ) : (
+          <Upload className="w-6 h-6" strokeWidth={1.8} />
         )}
       </div>
+      <h3 className="mt-1.5 text-xl font-semibold tracking-[-0.01em]">
+        {isProcessing ? 'Zpracovávám data...' : 'Načtěte CSV soubor'}
+      </h3>
+      <p className="text-fg-muted max-w-[46ch]">
+        {isProcessing ? 'Prosím čekejte, analyzuji soubor.' : 'Přetáhněte sem CSV soubor, nebo ho vyberte z počítače.'}
+      </p>
+
+      <input 
+        type="file" 
+        ref={fileInputRef}
+        accept=".csv,.txt"
+        onChange={handleFileChange}
+        className="hidden" 
+        disabled={isProcessing}
+      />
+
+      {!isProcessing && (
+        <button 
+          onClick={() => fileInputRef.current?.click()}
+          className="mt-1.5 inline-flex items-center h-9 px-3.5 rounded-button bg-accent-strong hover:bg-accent-strong-hover text-white text-sm font-medium transition-colors"
+        >
+          Vybrat soubor
+        </button>
+      )}
+      <span className="text-xs text-fg-subtle mt-0.5">Podporované formáty: .csv, .txt · data zůstávají jen v prohlížeči</span>
     </div>
   );
 };

@@ -32,25 +32,28 @@ const HeaderDropdown: React.FC<HeaderDropdownProps> = ({ label, links }) => {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-1 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors focus:outline-none group"
+        aria-expanded={isOpen}
+        className={`flex items-center gap-1 h-7 px-2.5 rounded-full text-[13px] font-medium transition-colors whitespace-nowrap ${
+          isOpen ? 'text-fg bg-white/[.06]' : 'text-fg-muted hover:text-fg hover:bg-white/[.06]'
+        }`}
       >
         <span>{label}</span>
-        <ChevronDown className={`w-4 h-4 transition-transform duration-200 text-gray-400 dark:text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 text-fg-subtle ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 dark:ring-white dark:ring-opacity-10 z-50 py-1 origin-top-right animate-fade-in transition-colors">
+        <div className="absolute right-0 mt-2 w-56 glass shadow-pop rounded-card z-50 p-1 origin-top-right">
           {links.map((link, idx) => (
             <a
               key={idx}
               href={link.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="group/item flex items-center justify-between px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              className="group/item flex items-center justify-between px-3 py-2 rounded-row text-sm text-fg hover:bg-surface-3 transition-colors"
               onClick={() => setIsOpen(false)}
             >
               <span>{link.label}</span>
-              <ExternalLink className="w-3 h-3 text-gray-400 dark:text-gray-500 group-hover/item:text-blue-600 dark:group-hover/item:text-blue-400" />
+              <ExternalLink className="w-3 h-3 text-fg-subtle group-hover/item:text-accent" />
             </a>
           ))}
         </div>
