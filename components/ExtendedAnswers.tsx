@@ -20,7 +20,7 @@ const ExtendedAnswers: React.FC<ExtendedAnswersProps> = ({ title, data, onAnswer
         </h3>
         <button 
           onClick={() => setIsMinimized(!isMinimized)}
-          className="w-8 h-8 shrink-0 grid place-items-center text-fg-subtle hover:text-fg hover:bg-white/[.06] rounded-row transition-colors"
+          className="w-8 h-8 shrink-0 grid place-items-center text-fg-subtle hover:text-fg hover:bg-fill rounded-row transition-colors"
           title={isMinimized ? "Maximalizovat" : "Minimalizovat"}
         >
           {isMinimized ? <ChevronDown className="w-5 h-5" /> : <ChevronUp className="w-5 h-5" />}

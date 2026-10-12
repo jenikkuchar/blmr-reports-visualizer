@@ -23,7 +23,7 @@ const OtherAnswersTable: React.FC<OtherAnswersTableProps> = ({ title, data, type
       case 'Nedávno':
         return 'text-warning bg-warning-soft';
       default:
-        return 'text-fg-muted bg-white/[.07]';
+        return 'text-fg-muted bg-fill';
     }
   };
 
@@ -38,13 +38,13 @@ const OtherAnswersTable: React.FC<OtherAnswersTableProps> = ({ title, data, type
         </h3>
         <div className="flex items-center gap-3">
           {isMinimized && data.length > 0 && (
-            <span className="text-xs font-medium h-[22px] inline-flex items-center px-2 bg-white/[.07] text-fg-muted rounded-md tnum">
+            <span className="text-xs font-medium h-[22px] inline-flex items-center px-2 bg-fill text-fg-muted rounded-md tnum">
               {formatInt(data.length)} záznamů
             </span>
           )}
           <button 
             onClick={() => setIsMinimized(!isMinimized)}
-            className="w-8 h-8 grid place-items-center text-fg-subtle hover:text-fg hover:bg-white/[.06] rounded-row transition-colors"
+            className="w-8 h-8 grid place-items-center text-fg-subtle hover:text-fg hover:bg-fill rounded-row transition-colors"
             title={isMinimized ? "Maximalizovat" : "Minimalizovat"}
           >
             {isMinimized ? <ChevronDown className="w-5 h-5" /> : <ChevronUp className="w-5 h-5" />}
@@ -75,7 +75,7 @@ const OtherAnswersTable: React.FC<OtherAnswersTableProps> = ({ title, data, type
                       <tr 
                         key={idx} 
                         onClick={() => onRowSelect(row)}
-                        className={`transition-colors group cursor-pointer hover:bg-white/[.03] ${isHighlighted ? 'bg-warning/[.05]' : ''}`}
+                        className={`transition-colors group cursor-pointer hover:bg-fill ${isHighlighted ? 'bg-[color-mix(in_srgb,var(--jk-warning)_6%,transparent)]' : ''}`}
                       >
                         <td className="px-2 py-2.5 hairline-b text-fg whitespace-nowrap min-w-[180px] align-top">
                           <div className="flex flex-col">

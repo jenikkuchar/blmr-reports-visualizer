@@ -78,7 +78,7 @@ const FullDataTable: React.FC<FullDataTableProps> = ({ data, onRowSelect, extern
       case 'Nedávno':
         return 'text-warning bg-warning-soft';
       default:
-        return 'text-fg-muted bg-white/[.07]';
+        return 'text-fg-muted bg-fill';
     }
   };
 
@@ -138,7 +138,7 @@ const FullDataTable: React.FC<FullDataTableProps> = ({ data, onRowSelect, extern
   const thClass = 'px-3 py-2.5 text-[11px] font-semibold text-fg-subtle whitespace-nowrap hairline-b';
   const pagerBtn = (disabled: boolean) =>
     `w-7 h-7 grid place-items-center rounded-row hairline transition-colors ${
-      disabled ? 'opacity-40 cursor-not-allowed text-fg-muted bg-white/[.07]' : 'text-fg bg-white/[.07] hover:bg-white/[.12]'
+      disabled ? 'opacity-40 cursor-not-allowed text-fg-muted bg-fill' : 'text-fg bg-fill hover:bg-fill-hover'
     }`;
 
   return (
@@ -150,17 +150,17 @@ const FullDataTable: React.FC<FullDataTableProps> = ({ data, onRowSelect, extern
              <button 
                onClick={() => setFilters({})}
                className="h-7 px-2.5 rounded-row text-[13px] font-medium text-danger hover:bg-danger-soft transition-colors"
-               style={{ boxShadow: '0 0 0 .5px rgba(255,69,58,.4) inset' }}
+               style={{ boxShadow: '0 0 0 .5px color-mix(in srgb, var(--jk-danger) 40%, transparent) inset' }}
              >
                Vymazat filtry
              </button>
            )}
-           <span className="text-xs font-medium h-[22px] inline-flex items-center px-2 bg-white/[.07] text-fg-muted rounded-md tnum whitespace-nowrap">
+           <span className="text-xs font-medium h-[22px] inline-flex items-center px-2 bg-fill text-fg-muted rounded-md tnum whitespace-nowrap">
              {processedData.length === data.length ? `Celkem ${formatInt(data.length)}` : `Filtr: ${formatInt(processedData.length)} z ${formatInt(data.length)}`}
            </span>
            <button 
             onClick={() => setIsMinimized(!isMinimized)}
-            className="w-8 h-8 grid place-items-center text-fg-subtle hover:text-fg hover:bg-white/[.06] rounded-row transition-colors"
+            className="w-8 h-8 grid place-items-center text-fg-subtle hover:text-fg hover:bg-fill rounded-row transition-colors"
             title={isMinimized ? "Maximalizovat" : "Minimalizovat"}
           >
             {isMinimized ? <ChevronDown className="w-5 h-5" /> : <ChevronUp className="w-5 h-5" />}
@@ -199,7 +199,7 @@ const FullDataTable: React.FC<FullDataTableProps> = ({ data, onRowSelect, extern
                 </tr>
                 <tr>
                   {headers.map((header) => (
-                    <th key={`filter-${header}`} className="px-2 py-2 hairline-b bg-white/[.02]">
+                    <th key={`filter-${header}`} className="px-2 py-2 hairline-b bg-transparent">
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
                           <Search className="h-3 w-3 text-fg-subtle" />
@@ -209,7 +209,7 @@ const FullDataTable: React.FC<FullDataTableProps> = ({ data, onRowSelect, extern
                           placeholder="Filtr..."
                           value={filters[header] || ''}
                           onChange={(e) => handleFilterChange(header, e.target.value)}
-                          className="block w-full min-w-[90px] h-7 pl-7 pr-6 text-xs font-normal rounded-row bg-surface-2 hairline text-fg placeholder:text-fg-subtle outline-none focus:shadow-[0_0_0_1px_#0a84ff_inset,0_0_0_3px_rgba(10,132,255,.45)] transition-shadow"
+                          className="block w-full min-w-[90px] h-7 pl-7 pr-6 text-xs font-normal rounded-row bg-surface-2 hairline text-fg placeholder:text-fg-subtle outline-none focus:shadow-[0_0_0_1px_var(--jk-accent)_inset,var(--jk-focus)] transition-shadow"
                         />
                         {filters[header] && (
                             <button 
@@ -234,7 +234,7 @@ const FullDataTable: React.FC<FullDataTableProps> = ({ data, onRowSelect, extern
                     <tr 
                       key={startIndex + idx} 
                       onClick={() => onRowSelect(row)}
-                      className={`cursor-pointer transition-colors group ${isHighlighted ? 'bg-warning/[.05]' : ''} hover:bg-white/[.03]`}
+                      className={`cursor-pointer transition-colors group ${isHighlighted ? 'bg-[color-mix(in_srgb,var(--jk-warning)_6%,transparent)]' : ''} hover:bg-fill`}
                     >
                       {headers.map((header) => {
                         const isTimestamp = header === "#2 timestamp";
@@ -285,7 +285,7 @@ const FullDataTable: React.FC<FullDataTableProps> = ({ data, onRowSelect, extern
                         );
                       })}
                       
-                      <td className="px-3 py-2 text-right sticky right-0 hairline-l hairline-b bg-surface-1 group-hover:bg-[#15151b]">
+                      <td className="px-3 py-2 text-right sticky right-0 hairline-l hairline-b bg-surface-1 group-hover:bg-surface-2">
                         <button className="w-7 h-7 inline-grid place-items-center rounded-row text-fg-subtle group-hover:text-accent transition-colors">
                           <Eye className="w-4 h-4" />
                         </button>
@@ -310,7 +310,7 @@ const FullDataTable: React.FC<FullDataTableProps> = ({ data, onRowSelect, extern
               <select 
                 value={itemsPerPage}
                 onChange={(e) => setItemsPerPage(Number(e.target.value))}
-                className="h-7 rounded-row px-2 bg-surface-2 hairline text-fg tnum outline-none focus:shadow-[0_0_0_1px_#0a84ff_inset,0_0_0_3px_rgba(10,132,255,.45)]"
+                className="h-7 rounded-row px-2 bg-surface-2 hairline text-fg tnum outline-none focus:shadow-[0_0_0_1px_var(--jk-accent)_inset,var(--jk-focus)]"
               >
                 <option value={10}>10</option>
                 <option value={25}>25</option>

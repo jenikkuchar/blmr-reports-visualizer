@@ -14,9 +14,7 @@ import { CsvRow } from '../types';
 import { getTrendData, getRollingTrendData } from '../utils/helpers';
 import { TrendingUp, Calendar, LayoutGrid, ChevronUp, ChevronDown, Hash } from 'lucide-react';
 import { formatInt, formatPercent } from '../utils/format';
-
-const AXIS = 'rgba(235,235,245,.38)';
-const GRID = 'rgba(255,255,255,.08)';
+import { useChartTheme } from '../utils/chartTheme';
 
 interface TrendChartProps {
   data: CsvRow[];
@@ -26,6 +24,7 @@ const TrendChart: React.FC<TrendChartProps> = ({ data }) => {
   const [granularity, setGranularity] = useState<'month' | 'week' | 'rolling'>('month');
   const [rollingDirection, setRollingDirection] = useState<'start' | 'end'>('start');
   const [isMinimized, setIsMinimized] = useState(false);
+  const chartTheme = useChartTheme();
 
   const { trendData, average } = useMemo(() => {
     if (granularity === 'rolling') {
@@ -72,10 +71,10 @@ const TrendChart: React.FC<TrendChartProps> = ({ data }) => {
   const segBtn = (active: boolean) =>
     `flex items-center gap-1.5 px-3 py-[5px] rounded-[7px] text-[13px] font-medium transition-colors ${
       active
-        ? 'bg-surface-3 text-fg shadow-[0_1px_2px_rgba(0,0,0,.4),inset_0_0_0_.5px_rgba(255,255,255,.14)]'
+        ? 'bg-surface-3 text-fg shadow-[0_1px_2px_rgba(0,0,0,.4),inset_0_0_0_.5px_var(--jk-line-2)]'
         : 'text-fg-muted hover:text-fg'
     }`;
-  const segWrap = 'flex p-[3px] gap-0.5 rounded-button bg-white/[.06] hairline-soft';
+  const segWrap = 'flex p-[3px] gap-0.5 rounded-button bg-fill hairline-soft';
 
   return (
     <div className="bg-surface-1 hairline rounded-card p-5">
@@ -122,7 +121,7 @@ const TrendChart: React.FC<TrendChartProps> = ({ data }) => {
           )}
           <button 
             onClick={() => setIsMinimized(!isMinimized)}
-            className="w-8 h-8 grid place-items-center text-fg-subtle hover:text-fg hover:bg-white/[.06] rounded-row transition-colors"
+            className="w-8 h-8 grid place-items-center text-fg-subtle hover:text-fg hover:bg-fill rounded-row transition-colors"
             title={isMinimized ? "Maximalizovat" : "Minimalizovat"}
           >
             {isMinimized ? <ChevronDown className="w-5 h-5" /> : <ChevronUp className="w-5 h-5" />}
@@ -135,31 +134,31 @@ const TrendChart: React.FC<TrendChartProps> = ({ data }) => {
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="99%" height="100%">
               <BarChart data={trendData} margin={{ top: 20, right: 30, left: 45, bottom: 0 }}>
-                <CartesianGrid vertical={false} stroke={GRID} />
+                <CartesianGrid vertical={false} stroke={chartTheme.grid} />
                 <XAxis 
                   dataKey="label" 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fontSize: 11, fill: AXIS }}
+                  tick={{ fontSize: 11, fill: chartTheme.axis }}
                   dy={10}
                 />
                 <YAxis 
                   domain={[0, 100]} 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fontSize: 11, fill: AXIS }}
+                  tick={{ fontSize: 11, fill: chartTheme.axis }}
                   tickFormatter={(val) => `${val} %`}
                 />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(10,132,255,.08)' }} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: chartTheme.accentSoft }} />
                 
                 <ReferenceLine 
                   y={average} 
-                  stroke="rgba(235,235,245,.38)" 
+                  stroke={chartTheme.axis} 
                   strokeDasharray="4 4"
                   label={{ 
                     position: 'left', 
                     value: `Ø ${formatPercent(average)}`, 
-                    fill: 'rgba(235,235,245,.60)', 
+                    fill: chartTheme.text2, 
                     fontSize: 11,
                     fontWeight: 600,
                     offset: 10
@@ -174,7 +173,7 @@ const TrendChart: React.FC<TrendChartProps> = ({ data }) => {
                   {trendData.map((entry, index) => (
                     <Cell 
                       key={`cell-${index}`} 
-                      fill={entry.ratio >= average ? '#0a84ff' : 'rgba(235,235,245,.38)'} 
+                      fill={entry.ratio >= average ? '#0a84ff' : chartTheme.text3} 
                       fillOpacity={entry.ratio >= average ? 0.9 : 0.5}
                     />
                   ))}

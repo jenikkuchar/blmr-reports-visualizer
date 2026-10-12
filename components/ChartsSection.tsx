@@ -3,6 +3,7 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recha
 import { BrowserDeviceStat } from '../types';
 import { Maximize2, X } from 'lucide-react';
 import { formatInt, formatPercent } from '../utils/format';
+import { useChartTheme } from '../utils/chartTheme';
 
 interface ChartsSectionProps {
   yesCount: number;
@@ -16,10 +17,8 @@ interface ChartsSectionProps {
 const COLORS_YESNO = ['#30d158', '#ff453a'];
 // Série grafu v pevném pořadí chart-1 … chart-8; 9. výseč „Ostatní“ je neutrální
 const COLORS_BROWSER = ['#0a84ff', '#30d158', '#ff9f0a', '#bf5af2', '#ff375f', '#64d2ff', '#ffd60a', '#ac8e68'];
-const COLOR_OTHER = 'rgba(235,235,245,.38)';
-const browserColor = (index: number) => COLORS_BROWSER[index] ?? COLOR_OTHER;
-
-const legendStyle = { fontSize: 12, color: 'rgba(235,235,245,.60)' };
+// 9. výseč „Ostatní“ je neutrální (--jk-text-3), proto se čte z tokenů
+const legendStyle = { fontSize: 12, color: 'var(--jk-text-2)' };
 
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
@@ -37,6 +36,16 @@ const CustomTooltip = ({ active, payload }: any) => {
 
 const ChartsSection: React.FC<ChartsSectionProps> = ({ yesCount, noCount, yesPercent, noPercent, browserStats }) => {
   const [expandedChart, setExpandedChart] = useState<'yesno' | 'browser' | null>(null);
+  const chartTheme = useChartTheme();
+  const browserColor = (index: number) => COLORS_BROWSER[index] ?? chartTheme.text3;
+
+  // Popisky a legenda v barvě textu (série jsou ve světlém režimu na bílé špatně čitelné)
+  const renderPieLabel = (props: any, text: string) => (
+    <text x={props.x} y={props.y} fill={chartTheme.text2} fontSize={12} textAnchor={props.textAnchor} dominantBaseline="central">
+      {text}
+    </text>
+  );
+  const legendFormatter = (value: string) => <span style={{ color: 'var(--jk-text-2)' }}>{value}</span>;
 
   const yesNoData = [
     { name: `Ano (${formatPercent(yesPercent)})`, value: yesCount },
@@ -67,8 +76,8 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ yesCount, noCount, yesPer
               paddingAngle={5}
               dataKey="value"
               stroke="none"
-              label={({name}) => `${name}`}
-              labelLine={{ stroke: 'rgba(255,255,255,.22)' }}
+              label={(props: any) => renderPieLabel(props, props.name)}
+              labelLine={{ stroke: chartTheme.line3 }}
               isAnimationActive={false}
             >
               {yesNoData.map((entry, index) => (
@@ -76,7 +85,7 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ yesCount, noCount, yesPer
               ))}
             </Pie>
             <Tooltip content={<CustomTooltip />} />
-            <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={legendStyle} />
+            <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={legendStyle} formatter={legendFormatter} />
           </PieChart>
         </ResponsiveContainer>
       );
@@ -95,8 +104,8 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ yesCount, noCount, yesPer
               dataKey="count"
               nameKey="key"
               stroke="none"
-              label={({ payload }) => `${payload.key} (${formatPercent(payload.percent)})`}
-              labelLine={{ stroke: 'rgba(255,255,255,.22)' }}
+              label={(props: any) => renderPieLabel(props, `${props.payload.key} (${formatPercent(props.payload.percent)})`)}
+              labelLine={{ stroke: chartTheme.line3 }}
               isAnimationActive={false}
             >
               {chartBrowserStats.map((entry, index) => (
@@ -104,7 +113,7 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ yesCount, noCount, yesPer
               ))}
             </Pie>
             <Tooltip content={<CustomTooltip />} />
-            <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ ...legendStyle, paddingTop: '20px' }} />
+            <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ ...legendStyle, paddingTop: '20px' }} formatter={legendFormatter} />
           </PieChart>
         </ResponsiveContainer>
        );
@@ -113,7 +122,7 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ yesCount, noCount, yesPer
   };
 
   const cardClass = 'bg-surface-1 hairline rounded-card p-5 flex flex-col h-[600px] relative group';
-  const expandBtnClass = 'absolute top-3.5 right-3.5 z-10 w-8 h-8 grid place-items-center rounded-row text-fg-muted bg-white/[.07] hover:bg-white/[.12] hover:text-fg hairline opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus:opacity-100 transition';
+  const expandBtnClass = 'absolute top-3.5 right-3.5 z-10 w-8 h-8 grid place-items-center rounded-row text-fg-muted bg-fill hover:bg-fill-hover hover:text-fg hairline opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus:opacity-100 transition';
 
   // Škála hodnocení: danger → chart-5 → warning → chart-7 → success
   const scale = [
@@ -161,14 +170,14 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ yesCount, noCount, yesPer
                <div className="flex justify-center gap-12 mt-2 mb-8">
                   <div className="flex flex-col items-center">
                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="w-2.5 h-2.5 rounded-[3px] bg-success"></span>
+                        <span className="w-2.5 h-2.5 rounded-[3px]" style={{ background: COLORS_YESNO[0] }}></span>
                         <span className="text-xs text-fg-muted tnum">Ano ({formatPercent(yesPercent)})</span>
                      </div>
                      <div className="text-[26px] font-semibold tracking-[-0.02em] tnum">{formatInt(yesCount)}</div>
                   </div>
                   <div className="flex flex-col items-center">
                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="w-2.5 h-2.5 rounded-[3px] bg-danger"></span>
+                        <span className="w-2.5 h-2.5 rounded-[3px]" style={{ background: COLORS_YESNO[1] }}></span>
                         <span className="text-xs text-fg-muted tnum">Ne ({formatPercent(noPercent)})</span>
                      </div>
                      <div className="text-[26px] font-semibold tracking-[-0.02em] tnum">{formatInt(noCount)}</div>
@@ -276,7 +285,7 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ yesCount, noCount, yesPer
       {/* Modal */}
       {expandedChart && (
         <div 
-            className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/30 dark:bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
             onClick={() => setExpandedChart(null)}
         >
             <div 
@@ -289,7 +298,7 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ yesCount, noCount, yesPer
                     </h3>
                     <button 
                         onClick={() => setExpandedChart(null)}
-                        className="w-9 h-9 grid place-items-center rounded-button text-fg-muted bg-white/[.07] hover:bg-white/[.12] hover:text-fg hairline transition-colors"
+                        className="w-9 h-9 grid place-items-center rounded-button text-fg-muted bg-fill hover:bg-fill-hover hover:text-fg hairline transition-colors"
                         aria-label="Zavřít"
                     >
                         <X className="w-5 h-5" />
