@@ -11,15 +11,46 @@ const FileUpload: React.FC<FileUploadProps> = ({ onDataLoaded }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const [isDragOver, setIsDragOver] = useState(false);
+
+  const handleFile = (file: File) => {
+    if (!/\.(csv|txt)$/i.test(file.name)) {
+      alert("Podporovány jsou soubory .csv a .txt");
+      return;
+    }
+    setIsProcessing(true);
+    // Use setTimeout to allow UI to update to processing state before heavy parsing begins
+    setTimeout(() => {
+      parseFile(file);
+    }, 100);
+  };
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      setIsProcessing(true);
-      // Use setTimeout to allow UI to update to processing state before heavy parsing begins
-      setTimeout(() => {
-        parseFile(file);
-      }, 100);
-    }
+    if (file) handleFile(file);
+    // Allow selecting the same file again
+    event.target.value = '';
+  };
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    if (isProcessing) return;
+    event.dataTransfer.dropEffect = 'copy';
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+    // Ignore leaving into a child element of the dropzone
+    if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragOver(false);
+    if (isProcessing) return;
+    const file = event.dataTransfer.files?.[0];
+    if (file) handleFile(file);
   };
 
   const parseFile = (file: File) => {
@@ -51,8 +82,12 @@ const FileUpload: React.FC<FileUploadProps> = ({ onDataLoaded }) => {
 
   return (
     <div
+      onDragOver={handleDragOver}
+      onDragEnter={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
       className={`rounded-panel border border-dashed px-3.5 py-7 sm:px-5 sm:py-10 flex flex-col items-center text-center gap-2.5 transition-colors ${
-        isProcessing
+        isProcessing || isDragOver
           ? 'border-accent bg-accent-soft'
           : 'border-line-hover bg-white/[.02] hover:border-accent hover:bg-accent-soft'
       }`}
@@ -68,7 +103,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onDataLoaded }) => {
         {isProcessing ? 'Zpracovávám data...' : 'Načtěte CSV soubor'}
       </h3>
       <p className="text-fg-muted max-w-[46ch]">
-        {isProcessing ? 'Prosím čekejte, analyzuji soubor.' : 'Podporovány jsou soubory .csv a .txt'}
+        {isProcessing ? 'Prosím čekejte, analyzuji soubor.' : 'Přetáhněte sem CSV soubor, nebo ho vyberte z počítače.'}
       </p>
 
       <input 
@@ -88,7 +123,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onDataLoaded }) => {
           Vybrat soubor
         </button>
       )}
-      <span className="text-xs text-fg-subtle mt-0.5">Data zůstávají jen v prohlížeči</span>
+      <span className="text-xs text-fg-subtle mt-0.5">Podporované formáty: .csv, .txt · data zůstávají jen v prohlížeči</span>
     </div>
   );
 };
