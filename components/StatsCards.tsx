@@ -176,14 +176,14 @@ const StatsCards: React.FC<StatsCardsProps> = ({
               type="date" 
               value={dateFilter.startDate}
               onChange={(e) => handleCustomDateChange('startDate', e.target.value)}
-              className="flex-1 min-w-0 h-8 text-xs bg-surface-2 hairline rounded-row px-2 text-fg tnum outline-none focus:shadow-[0_0_0_1px_#0a84ff_inset,0_0_0_3px_rgba(10,132,255,.45)] transition-shadow"
+              className="flex-1 min-w-0 h-8 text-xs bg-surface-2 hairline rounded-row px-2 text-fg tnum outline-none focus:shadow-[0_0_0_1px_var(--jk-accent)_inset,var(--jk-focus)] transition-shadow"
             />
             <span className="text-fg-subtle text-xs">do</span>
             <input 
               type="date" 
               value={dateFilter.endDate}
               onChange={(e) => handleCustomDateChange('endDate', e.target.value)}
-              className="flex-1 min-w-0 h-8 text-xs bg-surface-2 hairline rounded-row px-2 text-fg tnum outline-none focus:shadow-[0_0_0_1px_#0a84ff_inset,0_0_0_3px_rgba(10,132,255,.45)] transition-shadow"
+              className="flex-1 min-w-0 h-8 text-xs bg-surface-2 hairline rounded-row px-2 text-fg tnum outline-none focus:shadow-[0_0_0_1px_var(--jk-accent)_inset,var(--jk-focus)] transition-shadow"
             />
           </div>
         )}

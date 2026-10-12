@@ -34,7 +34,7 @@ const HeaderDropdown: React.FC<HeaderDropdownProps> = ({ label, links }) => {
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
         className={`flex items-center gap-1 h-7 px-2.5 rounded-full text-[13px] font-medium transition-colors whitespace-nowrap ${
-          isOpen ? 'text-fg bg-white/[.06]' : 'text-fg-muted hover:text-fg hover:bg-white/[.06]'
+          isOpen ? 'text-fg bg-fill' : 'text-fg-muted hover:text-fg hover:bg-fill'
         }`}
       >
         <span>{label}</span>

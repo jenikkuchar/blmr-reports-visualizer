@@ -89,7 +89,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onDataLoaded }) => {
       className={`rounded-panel border border-dashed px-3.5 py-7 sm:px-5 sm:py-10 flex flex-col items-center text-center gap-2.5 transition-colors ${
         isProcessing || isDragOver
           ? 'border-accent bg-accent-soft'
-          : 'border-line-hover bg-white/[.02] hover:border-accent hover:bg-accent-soft'
+          : 'border-line-hover bg-transparent hover:border-accent hover:bg-accent-soft'
       }`}
     >
       <div className="w-[52px] h-[52px] rounded-full bg-accent-soft text-accent grid place-items-center">

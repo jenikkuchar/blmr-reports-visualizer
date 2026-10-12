@@ -36,7 +36,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, row }) => {
 
   return (
     <div 
-      className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+      className="fixed inset-0 bg-black/30 dark:bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <div 
@@ -51,7 +51,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, row }) => {
           </h3>
           <button 
             onClick={onClose}
-            className="w-8 h-8 grid place-items-center rounded-row text-fg-subtle hover:text-fg hover:bg-white/[.06] transition-colors"
+            className="w-8 h-8 grid place-items-center rounded-row text-fg-subtle hover:text-fg hover:bg-fill transition-colors"
             aria-label="Zavřít"
           >
             <X className="w-5 h-5" />
@@ -85,7 +85,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, row }) => {
                       ? 'badge-dot text-success bg-success-soft' 
                       : answer === 'Ne' 
                         ? 'badge-dot text-danger bg-danger-soft'
-                        : 'text-fg-muted bg-white/[.07]'
+                        : 'text-fg-muted bg-fill'
                   }`}>
                   {answer || 'N/A'}
                 </div>
@@ -179,7 +179,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, row }) => {
         <div className="px-5 py-3.5 hairline-t flex justify-end">
           <button 
             onClick={onClose}
-            className="inline-flex items-center h-9 px-3.5 rounded-button bg-white/[.07] hover:bg-white/[.12] hairline text-fg text-sm font-medium transition-colors"
+            className="inline-flex items-center h-9 px-3.5 rounded-button bg-fill hover:bg-fill-hover hairline text-fg text-sm font-medium transition-colors"
           >
             Zavřít detail
           </button>

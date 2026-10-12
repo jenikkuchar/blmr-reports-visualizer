@@ -137,7 +137,7 @@ function App() {
               href="https://www.jan-kuchar.cz"
               aria-label="jan-kuchar.cz"
               className="w-[26px] h-[26px] rounded-[7px] grid place-items-center shrink-0 text-white text-[11px] font-extrabold tracking-[-0.02em]"
-              style={{ background: 'linear-gradient(135deg,#0a84ff,#bf5af2 50%,#ff375f)', boxShadow: '0 0 0 .5px rgba(255,255,255,.18) inset' }}
+              style={{ background: 'var(--jk-brand-gradient)', boxShadow: '0 0 0 .5px rgba(255,255,255,.18) inset' }}
             >
               JK
             </a>
@@ -153,6 +153,18 @@ function App() {
           <div className="flex items-center gap-1">
             <HeaderDropdown label="BloomReach" links={bloomReachLinks} />
             <HeaderDropdown label="Looker Studio" links={lookerLinks} />
+
+            {/* Přepínač režimu – vždy poslední prvek lišty; klik, ⌘⇧L i uložení volby řeší brand/theme.js */}
+            <button
+              type="button"
+              className="theme-toggle ml-1"
+              data-theme-toggle
+              aria-label="Přepnout světlý / tmavý režim"
+              title="Přepnout režim (⌘⇧L)"
+            >
+              <svg className="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+              <svg className="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></svg>
+            </button>
           </div>
         </div>
       </header>
@@ -172,7 +184,7 @@ function App() {
           {data && (
             <button
               onClick={() => setData(null)}
-              className="inline-flex items-center h-7 px-2.5 rounded-row text-[13px] font-medium text-fg bg-white/[.07] hover:bg-white/[.12] hairline transition-colors"
+              className="inline-flex items-center h-7 px-2.5 rounded-row text-[13px] font-medium text-fg bg-fill hover:bg-fill-hover hairline transition-colors"
             >
               Nahrát jiný soubor
             </button>
@@ -195,7 +207,7 @@ function App() {
             />
 
             {stats.totalAnswers === 0 ? (
-              <div className="rounded-panel border border-dashed border-line-hover bg-white/[.02] px-5 py-10 flex flex-col items-center justify-center text-center gap-2.5">
+              <div className="rounded-panel border border-dashed border-line-hover bg-transparent px-5 py-10 flex flex-col items-center justify-center text-center gap-2.5">
                 <div className="w-[52px] h-[52px] rounded-full bg-accent-soft text-accent grid place-items-center">
                    <FilterX className="w-6 h-6" strokeWidth={1.8} />
                 </div>
