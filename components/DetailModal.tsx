@@ -2,6 +2,7 @@ import React from 'react';
 import { X, Calendar, Globe, Monitor, MessageSquare, Link as LinkIcon, HelpCircle } from 'lucide-react';
 import { CsvRow } from '../types';
 import { cleanHeader, formatCellValue } from '../utils/helpers';
+import { formatNumericCell, isNumericValue } from '../utils/format';
 
 interface DetailModalProps {
   isOpen: boolean;
@@ -30,68 +31,72 @@ const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, row }) => {
 
   const remainingEntries = Object.entries(row).filter(([key]) => !usedKeys.includes(key));
 
+  const labelClass = 'flex items-center gap-1.5 text-[11px] font-semibold text-fg-subtle mb-1.5';
+  const blockClass = 'bg-surface-2 hairline-soft rounded-card';
+
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <div 
-        className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col border border-gray-200 dark:border-gray-700"
+        className="bg-surface-1 shadow-pop rounded-panel w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         
         {/* Header */}
-        <div className="flex justify-between items-center p-5 border-b border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+        <div className="flex justify-between items-center px-5 py-4 hairline-b">
+          <h3 className="text-xl font-semibold tracking-[-0.01em]">
             Detail záznamu
           </h3>
           <button 
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
+            className="w-8 h-8 grid place-items-center rounded-row text-fg-subtle hover:text-fg hover:bg-white/[.06] transition-colors"
+            aria-label="Zavřít"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Scrollable Content */}
-        <div className="p-6 overflow-y-auto custom-scrollbar space-y-6 flex-1 bg-gray-50/50 dark:bg-gray-900/50">
+        <div className="p-5 overflow-y-auto space-y-3 flex-1">
           
           {/* Section 1: Question & Core Answer */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+          <div className={`${blockClass} p-4`}>
             <div className="mb-4">
-              <div className="flex items-center gap-2 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+              <div className={labelClass}>
                 <HelpCircle className="w-3.5 h-3.5" />
                 <span>Otázka</span>
               </div>
-              <p className="text-lg font-medium text-gray-900 dark:text-white leading-relaxed">
+              <p className="text-base font-medium leading-relaxed">
                 {question || 'N/A'}
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 hairline-t">
               {/* Answer Status */}
               <div>
-                <div className="flex items-center gap-2 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                <div className={labelClass}>
                    <MessageSquare className="w-3.5 h-3.5" />
                    <span>Odpověď</span>
                 </div>
-                <div className={`inline-flex px-3 py-1.5 rounded-lg text-sm font-bold ${
+                <div className={`inline-flex items-center gap-1.5 h-6 px-2.5 rounded-md text-[13px] font-medium ${
                     answer === 'Ano' 
-                      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                      ? 'badge-dot text-success bg-success-soft' 
                       : answer === 'Ne' 
-                        ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                        : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                        ? 'badge-dot text-danger bg-danger-soft'
+                        : 'text-fg-muted bg-white/[.07]'
                   }`}>
                   {answer || 'N/A'}
                 </div>
               </div>
               {/* Timestamp */}
               <div>
-                <div className="flex items-center gap-2 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                <div className={labelClass}>
                   <Calendar className="w-3.5 h-3.5" />
                   <span>Datum a čas</span>
                 </div>
-                <p className="text-gray-900 dark:text-white font-medium tabular-nums">
+                <p className="font-medium tnum">
                   {timestamp || 'N/A'}
                 </p>
               </div>
@@ -99,31 +104,31 @@ const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, row }) => {
           </div>
 
           {/* Section 2: Technical Details */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-             <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
-                <div className="flex items-center gap-2 text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-2">
-                  <Globe className="w-3.5 h-3.5" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+             <div className={`${blockClass} p-4`}>
+                <div className={labelClass}>
+                  <Globe className="w-3.5 h-3.5 text-accent" />
                   <span>Prohlížeč</span>
                 </div>
-                <p className="text-gray-900 dark:text-white text-sm">{browser || 'N/A'}</p>
+                <p className="text-sm">{browser || 'N/A'}</p>
              </div>
-             <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
-                <div className="flex items-center gap-2 text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider mb-2">
-                  <Monitor className="w-3.5 h-3.5" />
+             <div className={`${blockClass} p-4`}>
+                <div className={labelClass}>
+                  <Monitor className="w-3.5 h-3.5 text-accent" />
                   <span>Zařízení</span>
                 </div>
-                <p className="text-gray-900 dark:text-white text-sm">{device || 'N/A'}</p>
+                <p className="text-sm">{device || 'N/A'}</p>
              </div>
           </div>
 
           {/* Section 3: Extended Answer (if present) */}
           {extendedAnswer && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden">
-               <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
-               <div className="flex items-center gap-2 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+            <div className={`${blockClass} p-4 relative overflow-hidden`}>
+               <div className="absolute top-0 left-0 w-0.5 h-full bg-accent"></div>
+               <div className={labelClass}>
                  <span>Doplňující odpověď</span>
                </div>
-               <p className="text-gray-800 dark:text-gray-200 leading-relaxed italic">
+               <p className="leading-relaxed">
                  "{extendedAnswer}"
                </p>
             </div>
@@ -131,8 +136,8 @@ const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, row }) => {
 
            {/* Section 4: Location/URL */}
            {location && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
-              <div className="flex items-center gap-2 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+            <div className={`${blockClass} p-4`}>
+              <div className={labelClass}>
                 <LinkIcon className="w-3.5 h-3.5" />
                 <span>Stránka (URL)</span>
               </div>
@@ -140,7 +145,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, row }) => {
                 href={location.startsWith('http') ? location : `https://www.datart.cz${location}`} 
                 target="_blank" 
                 rel="noreferrer" 
-                className="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all block"
+                className="text-sm text-accent hover:text-accent-hover break-all block"
               >
                 {formatCellValue('location', location)}
               </a>
@@ -149,18 +154,18 @@ const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, row }) => {
 
           {/* Section 5: Other Fields (Dynamic) */}
           {remainingEntries.length > 0 && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
-               <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">
+            <div className={`${blockClass} p-4`}>
+               <h4 className="text-sm font-semibold pb-2 mb-3 hairline-b">
                  Ostatní data
                </h4>
-               <div className="grid grid-cols-1 gap-4">
+               <div className="grid grid-cols-1 gap-3">
                  {remainingEntries.map(([key, value]) => (
                    <div key={key} className="flex flex-col sm:flex-row sm:justify-between text-sm">
-                     <span className="font-medium text-gray-500 dark:text-gray-400 mb-1 sm:mb-0">
+                     <span className="text-fg-muted mb-1 sm:mb-0">
                        {cleanHeader(key)}:
                      </span>
-                     <span className="text-gray-900 dark:text-gray-200 text-right font-medium break-all sm:pl-4">
-                       {value || '-'}
+                     <span className={`text-right font-medium break-all sm:pl-4 ${isNumericValue(String(value ?? "")) ? 'tnum' : ''}`}>
+                       {value ? formatNumericCell(String(value)) : '-'}
                      </span>
                    </div>
                  ))}
@@ -171,10 +176,10 @@ const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, row }) => {
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 flex justify-end">
+        <div className="px-5 py-3.5 hairline-t flex justify-end">
           <button 
             onClick={onClose}
-            className="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg text-sm font-medium transition-colors focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-500"
+            className="inline-flex items-center h-9 px-3.5 rounded-button bg-white/[.07] hover:bg-white/[.12] hairline text-fg text-sm font-medium transition-colors"
           >
             Zavřít detail
           </button>

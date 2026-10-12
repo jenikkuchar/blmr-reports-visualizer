@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { CsvRow, DateFilterState } from './types';
 import FileUpload from './components/FileUpload';
 import StatsCards from './components/StatsCards';
@@ -10,12 +10,12 @@ import FullDataTable from './components/FullDataTable';
 import HeaderDropdown from './components/HeaderDropdown';
 import DetailModal from './components/DetailModal';
 import { calculateDateRange, processExtendedAnswers, processBrowserStats, filterDataByDate, getAvailableMonths } from './utils/helpers';
-import { FileText, BarChart2, Moon, Sun, FilterX } from 'lucide-react';
+import { FilterX } from 'lucide-react';
+import { formatInt } from './utils/format';
 
 function App() {
   const [data, setData] = useState<CsvRow[] | null>(null);
   const [fileName, setFileName] = useState<string>("");
-  const [isDarkMode, setIsDarkMode] = useState(true);
 
   // Date Filtering State
   const [dateFilter, setDateFilter] = useState<DateFilterState>({
@@ -32,15 +32,6 @@ function App() {
 
   // Ref for scrolling
   const fullDataTableRef = useRef<HTMLDivElement>(null);
-
-  // Toggle Dark Mode
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDarkMode]);
 
   const handleDataLoaded = (loadedData: CsvRow[], name: string) => {
     setData(loadedData);
@@ -138,53 +129,62 @@ function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-12 transition-colors duration-200">
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors duration-200 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="bg-blue-600 p-2 rounded-lg">
-              <BarChart2 className="w-6 h-6 text-white" />
-            </div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">CSV Analyzer <span className="text-gray-400 dark:text-gray-500 font-normal">| AI Statistiky</span></h1>
+    <div className="min-h-screen flex flex-col text-fg">
+      <header className="glass hairline-b sticky top-0 z-40">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 h-14 flex items-center gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <a
+              href="https://www.jan-kuchar.cz"
+              aria-label="jan-kuchar.cz"
+              className="w-[26px] h-[26px] rounded-[7px] grid place-items-center shrink-0 text-white text-[11px] font-extrabold tracking-[-0.02em]"
+              style={{ background: 'linear-gradient(135deg,#0a84ff,#bf5af2 50%,#ff375f)', boxShadow: '0 0 0 .5px rgba(255,255,255,.18) inset' }}
+            >
+              JK
+            </a>
+            <span className="text-fg-subtle font-light text-lg" aria-hidden="true">/</span>
+            <img src="/favicon.svg" alt="" className="w-[26px] h-[26px] shrink-0" />
+            <span className="text-[15px] font-light tracking-[-0.01em] whitespace-nowrap hidden min-[420px]:inline">
+              Reports <span className="font-semibold">Visualizer</span>
+            </span>
           </div>
-          
-          <div className="flex items-center space-x-6">
+
+          <div className="flex-1" />
+
+          <div className="flex items-center gap-1">
             <HeaderDropdown label="BloomReach" links={bloomReachLinks} />
             <HeaderDropdown label="Looker Studio" links={lookerLinks} />
-            
-            <button
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-700 transition-colors"
-              aria-label="Toggle Dark Mode"
-            >
-              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {!data && (
-          <div className="max-w-xl mx-auto mt-10">
-            <FileUpload onDataLoaded={handleDataLoaded} />
+      <main className="flex-1 w-full max-w-[1200px] mx-auto px-4 sm:px-6 pt-7 pb-10">
+        <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
+          <div className="min-w-0">
+            <h1 className="text-2xl sm:text-[32px] sm:leading-tight font-semibold tracking-[-0.02em]">Analýza odpovědí</h1>
+            {data ? (
+              <p className="text-[13px] text-fg-muted mt-0.5 truncate">
+                Soubor: <span className="text-fg font-medium">{fileName}</span>
+              </p>
+            ) : (
+              <p className="text-[13px] text-fg-muted mt-0.5">Vizualizace CSV reportů z BloomReach a Looker Studia.</p>
+            )}
           </div>
+          {data && (
+            <button
+              onClick={() => setData(null)}
+              className="inline-flex items-center h-7 px-2.5 rounded-row text-[13px] font-medium text-fg bg-white/[.07] hover:bg-white/[.12] hairline transition-colors"
+            >
+              Nahrát jiný soubor
+            </button>
+          )}
+        </div>
+
+        {!data && (
+          <FileUpload onDataLoaded={handleDataLoaded} />
         )}
 
         {data && stats && (
-          <div className="space-y-6 animate-fade-in">
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm transition-colors">
-                <FileText className="w-4 h-4" />
-                <span>Soubor: <span className="font-medium text-gray-900 dark:text-white">{fileName}</span></span>
-              </div>
-              <button 
-                onClick={() => setData(null)}
-                className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline font-medium"
-              >
-                Nahrát jiný soubor
-              </button>
-            </div>
-
+          <div className="space-y-4">
             <StatsCards 
               question={stats.question} 
               period={stats.period} 
@@ -195,17 +195,17 @@ function App() {
             />
 
             {stats.totalAnswers === 0 ? (
-              <div className="bg-white dark:bg-gray-800 p-12 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center text-center">
-                <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-full mb-4">
-                   <FilterX className="w-10 h-10 text-gray-400 dark:text-gray-500" />
+              <div className="rounded-panel border border-dashed border-line-hover bg-white/[.02] px-5 py-10 flex flex-col items-center justify-center text-center gap-2.5">
+                <div className="w-[52px] h-[52px] rounded-full bg-accent-soft text-accent grid place-items-center">
+                   <FilterX className="w-6 h-6" strokeWidth={1.8} />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Žádné záznamy k zobrazení</h3>
-                <p className="text-gray-500 dark:text-gray-400 max-w-md">
+                <h3 className="mt-1.5 text-xl font-semibold tracking-[-0.01em]">Žádné záznamy k zobrazení</h3>
+                <p className="text-fg-muted max-w-[46ch]">
                   Zkuste změnit období nebo filtry. Pro vybrané nastavení jsme v nahraném souboru nenašli žádná data.
                 </p>
                 <button 
                   onClick={() => setDateFilter({ type: 'all', startDate: '', endDate: '' })}
-                  className="mt-6 px-6 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors font-medium text-sm"
+                  className="mt-1.5 inline-flex items-center h-9 px-3.5 rounded-button bg-accent-strong hover:bg-accent-strong-hover text-white text-sm font-medium transition-colors"
                 >
                   Zobrazit všechna data
                 </button>
@@ -230,7 +230,7 @@ function App() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                    {(stats.noOtherRows.length > 0) && (
                       <OtherAnswersTable 
                         title='Odpovědi "Jiné" - Ne' 
@@ -249,7 +249,7 @@ function App() {
                    )}
                 </div>
 
-                <div ref={fullDataTableRef}>
+                <div ref={fullDataTableRef} className="scroll-mt-20">
                   <FullDataTable 
                     data={filteredByDateData} 
                     onRowSelect={handleRowSelect}
@@ -261,6 +261,17 @@ function App() {
           </div>
         )}
       </main>
+
+      <footer className="hairline-t">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-2.5 flex flex-wrap justify-between gap-3 text-xs text-fg-subtle">
+          <span>
+            Stav: <span className="text-success">připraveno</span>
+            {' · '}
+            {data ? <span className="tnum">{formatInt(data.length)} záznamů</span> : 'žádná data'}
+          </span>
+          <span>AI Statistiky · © 2026 Jan Kuchař</span>
+        </div>
+      </footer>
 
       <DetailModal 
         isOpen={!!selectedRow}

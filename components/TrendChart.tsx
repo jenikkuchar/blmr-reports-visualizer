@@ -13,6 +13,10 @@ import {
 import { CsvRow } from '../types';
 import { getTrendData, getRollingTrendData } from '../utils/helpers';
 import { TrendingUp, Calendar, LayoutGrid, ChevronUp, ChevronDown, Hash } from 'lucide-react';
+import { formatInt, formatPercent } from '../utils/format';
+
+const AXIS = 'rgba(235,235,245,.38)';
+const GRID = 'rgba(255,255,255,.08)';
 
 interface TrendChartProps {
   data: CsvRow[];
@@ -40,22 +44,22 @@ const TrendChart: React.FC<TrendChartProps> = ({ data }) => {
       const lastDateStr = showDates ? new Date(dataPoint.lastDate).toLocaleDateString('cs-CZ') : '';
 
       return (
-        <div className="bg-white dark:bg-gray-800 p-4 border border-gray-100 dark:border-gray-700 shadow-xl rounded-xl text-sm transition-colors">
-          <p className="font-bold text-gray-900 dark:text-white mb-2 border-b dark:border-gray-700 pb-1">
+        <div className="glass shadow-pop px-3.5 py-3 rounded-row text-[13px]">
+          <p className="font-semibold text-fg mb-1.5 pb-1.5 hairline-b">
             {label}
           </p>
           <div className="space-y-1">
-            <p className="text-gray-600 dark:text-gray-400 flex justify-between gap-4">
+            <p className="text-fg-muted flex justify-between gap-4">
               <span>Poměr Ano:</span>
-              <span className="font-bold text-emerald-600 dark:text-emerald-400">{payload[0].value}%</span>
+              <span className="font-semibold text-accent tnum">{formatPercent(payload[0].value)}</span>
             </p>
-            <p className="text-gray-500 dark:text-gray-500 text-[11px] flex justify-between gap-4">
+            <p className="text-fg-subtle text-xs flex justify-between gap-4">
               <span>Vzorek:</span>
-              <span className="font-medium">{dataPoint.total} odpovědí</span>
+              <span className="font-medium tnum">{formatInt(dataPoint.total)} odpovědí</span>
             </p>
             {showDates && (
-              <p className="text-gray-400 dark:text-gray-500 text-[10px] mt-2 pt-2 border-t border-gray-50 dark:border-gray-700/50">
-                Rozsah: <span className="font-medium">{firstDateStr} – {lastDateStr}</span>
+              <p className="text-fg-subtle text-xs mt-2 pt-2 hairline-t">
+                Rozsah: <span className="font-medium tnum">{firstDateStr} – {lastDateStr}</span>
               </p>
             )}
           </div>
@@ -65,73 +69,50 @@ const TrendChart: React.FC<TrendChartProps> = ({ data }) => {
     return null;
   };
 
+  const segBtn = (active: boolean) =>
+    `flex items-center gap-1.5 px-3 py-[5px] rounded-[7px] text-[13px] font-medium transition-colors ${
+      active
+        ? 'bg-surface-3 text-fg shadow-[0_1px_2px_rgba(0,0,0,.4),inset_0_0_0_.5px_rgba(255,255,255,.14)]'
+        : 'text-fg-muted hover:text-fg'
+    }`;
+  const segWrap = 'flex p-[3px] gap-0.5 rounded-button bg-white/[.06] hairline-soft';
+
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors mb-8">
-      <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 ${!isMinimized ? 'mb-6' : ''}`}>
+    <div className="bg-surface-1 hairline rounded-card p-5">
+      <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 ${!isMinimized ? 'mb-5' : ''}`}>
         <div className="flex items-center gap-4 w-full sm:w-auto">
-          <h3 className="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-blue-500" />
+          <h3 className="text-base font-semibold tracking-[-0.01em] flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-accent" />
             Trend vývoje v čase
           </h3>
         </div>
 
-        <div className="flex items-center space-x-4 ml-auto sm:ml-0">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 ml-auto sm:ml-0 justify-end">
           {!isMinimized && granularity === 'rolling' && (
-            <div className="flex bg-gray-100 dark:bg-gray-700/50 p-1 rounded-lg">
-              <button
-                onClick={() => setRollingDirection('start')}
-                className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${
-                  rollingDirection === 'start'
-                    ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-300 shadow-sm'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                }`}
-              >
+            <div className={segWrap}>
+              <button onClick={() => setRollingDirection('start')} aria-pressed={rollingDirection === 'start'} className={segBtn(rollingDirection === 'start')}>
                 Od začátku
               </button>
-              <button
-                onClick={() => setRollingDirection('end')}
-                className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${
-                  rollingDirection === 'end'
-                    ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-300 shadow-sm'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                }`}
-              >
+              <button onClick={() => setRollingDirection('end')} aria-pressed={rollingDirection === 'end'} className={segBtn(rollingDirection === 'end')}>
                 Od konce
               </button>
             </div>
           )}
 
           {!isMinimized && (
-            <div className="flex bg-gray-100 dark:bg-gray-700/50 p-1 rounded-lg">
-              <button
-                onClick={() => setGranularity('month')}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
-                  granularity === 'month' 
-                    ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-300 shadow-sm' 
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                }`}
-              >
+            <div className={segWrap}>
+              <button onClick={() => setGranularity('month')} aria-pressed={granularity === 'month'} className={segBtn(granularity === 'month')}>
                 <Calendar className="w-3.5 h-3.5" />
                 Měsíce
               </button>
-              <button
-                onClick={() => setGranularity('week')}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
-                  granularity === 'week' 
-                    ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-300 shadow-sm' 
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                }`}
-              >
+              <button onClick={() => setGranularity('week')} aria-pressed={granularity === 'week'} className={segBtn(granularity === 'week')}>
                 <LayoutGrid className="w-3.5 h-3.5" />
                 Týdny
               </button>
               <button
                 onClick={() => setGranularity('rolling')}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
-                  granularity === 'rolling' 
-                    ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-300 shadow-sm' 
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                }`}
+                aria-pressed={granularity === 'rolling'}
+                className={segBtn(granularity === 'rolling')}
                 title="Průměr po 50 hodnoceních"
               >
                 <Hash className="w-3.5 h-3.5" />
@@ -141,7 +122,7 @@ const TrendChart: React.FC<TrendChartProps> = ({ data }) => {
           )}
           <button 
             onClick={() => setIsMinimized(!isMinimized)}
-            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="w-8 h-8 grid place-items-center text-fg-subtle hover:text-fg hover:bg-white/[.06] rounded-row transition-colors"
             title={isMinimized ? "Maximalizovat" : "Minimalizovat"}
           >
             {isMinimized ? <ChevronDown className="w-5 h-5" /> : <ChevronUp className="w-5 h-5" />}
@@ -154,33 +135,33 @@ const TrendChart: React.FC<TrendChartProps> = ({ data }) => {
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="99%" height="100%">
               <BarChart data={trendData} margin={{ top: 20, right: 30, left: 45, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" className="dark:stroke-gray-700" />
+                <CartesianGrid vertical={false} stroke={GRID} />
                 <XAxis 
                   dataKey="label" 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fontSize: 11, fill: '#94a3b8' }}
+                  tick={{ fontSize: 11, fill: AXIS }}
                   dy={10}
                 />
                 <YAxis 
                   domain={[0, 100]} 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fontSize: 11, fill: '#94a3b8' }}
-                  tickFormatter={(val) => `${val}%`}
+                  tick={{ fontSize: 11, fill: AXIS }}
+                  tickFormatter={(val) => `${val} %`}
                 />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(59, 130, 246, 0.05)' }} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(10,132,255,.08)' }} />
                 
                 <ReferenceLine 
                   y={average} 
-                  stroke="#94a3b8" 
-                  strokeDasharray="5 5"
+                  stroke="rgba(235,235,245,.38)" 
+                  strokeDasharray="4 4"
                   label={{ 
                     position: 'left', 
-                    value: `Ø ${average}%`, 
-                    fill: '#94a3b8', 
-                    fontSize: 10,
-                    fontWeight: 'bold',
+                    value: `Ø ${formatPercent(average)}`, 
+                    fill: 'rgba(235,235,245,.60)', 
+                    fontSize: 11,
+                    fontWeight: 600,
                     offset: 10
                   }} 
                 />
@@ -193,8 +174,8 @@ const TrendChart: React.FC<TrendChartProps> = ({ data }) => {
                   {trendData.map((entry, index) => (
                     <Cell 
                       key={`cell-${index}`} 
-                      fill={entry.ratio >= average ? '#3b82f6' : '#94a3b8'} 
-                      fillOpacity={entry.ratio >= average ? 0.8 : 0.4}
+                      fill={entry.ratio >= average ? '#0a84ff' : 'rgba(235,235,245,.38)'} 
+                      fillOpacity={entry.ratio >= average ? 0.9 : 0.5}
                     />
                   ))}
                 </Bar>
@@ -202,15 +183,15 @@ const TrendChart: React.FC<TrendChartProps> = ({ data }) => {
             </ResponsiveContainer>
           </div>
 
-          <div className="mt-4 flex items-center justify-center gap-6">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded bg-blue-500 opacity-80"></div>
-              <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nad průměrem</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded bg-gray-400 opacity-40"></div>
-              <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Pod průměrem</span>
-            </div>
+          <div className="mt-4 flex items-center justify-center gap-4 text-xs text-fg-muted">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-[3px] bg-accent"></span>
+              Nad průměrem
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-[3px] bg-fg-subtle opacity-50"></span>
+              Pod průměrem
+            </span>
           </div>
         </>
       )}

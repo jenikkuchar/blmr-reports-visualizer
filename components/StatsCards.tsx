@@ -14,6 +14,7 @@ import {
   CalendarCheck2
 } from 'lucide-react';
 import { DateFilterState, DateFilterType, AvailableMonth } from '../types';
+import { formatInt } from '../utils/format';
 
 interface StatsCardsProps {
   question: string;
@@ -75,140 +76,131 @@ const StatsCards: React.FC<StatsCardsProps> = ({
     }
   }
 
+  const itemClass = (active: boolean) =>
+    `w-full flex items-center justify-between px-2.5 py-2 rounded-row text-sm transition-colors ${
+      active ? 'bg-accent-soft text-accent' : 'text-fg hover:bg-surface-3'
+    }`;
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
       {/* Question Card */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-start space-x-4 transition-colors">
-        <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg shrink-0">
-          <HelpCircle className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-        </div>
-        <div className="min-w-0">
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Dotaz</p>
-          <p className="text-gray-900 dark:text-white font-semibold text-sm leading-relaxed truncate md:whitespace-normal" title={question}>
-            {question}
-          </p>
-        </div>
+      <div className="bg-surface-1 hairline rounded-card px-4 py-3.5 min-w-0">
+        <p className="flex items-center gap-1.5 text-xs text-fg-muted mb-1">
+          <HelpCircle className="w-3.5 h-3.5 text-accent" />
+          Dotaz
+        </p>
+        <p className="text-fg font-semibold text-sm leading-relaxed truncate md:whitespace-normal" title={question}>
+          {question}
+        </p>
       </div>
 
       {/* Period Filter Card */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col transition-colors relative">
-        <div className="flex items-start space-x-4 mb-4">
-          <div className="p-3 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg shrink-0">
-            <Calendar className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-          </div>
-          <div className="flex-1 min-w-0" ref={dropdownRef}>
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Sledované období</p>
-            
-            {/* Custom Styled Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="w-full flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 transition-all text-left group"
-              >
-                <div className="flex items-center space-x-2 min-w-0">
-                  <span className="text-emerald-600 dark:text-emerald-400 shrink-0">
-                    {activeIcon}
-                  </span>
-                  <span className="text-gray-900 dark:text-white font-semibold text-sm truncate">
-                    {activeLabel}
-                  </span>
-                </div>
-                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 shrink-0 ${isDropdownOpen ? 'rotate-180' : ''}`} />
-              </button>
+      <div className="bg-surface-1 hairline rounded-card px-4 py-3.5 flex flex-col relative">
+        <div className="min-w-0" ref={dropdownRef}>
+          <p className="flex items-center gap-1.5 text-xs text-fg-muted mb-1.5">
+            <Calendar className="w-3.5 h-3.5 text-accent" />
+            Sledované období
+          </p>
 
-              {isDropdownOpen && (
-                <div className="absolute left-0 mt-2 w-full max-h-[350px] overflow-y-auto custom-scrollbar bg-white dark:bg-gray-800 rounded-xl shadow-xl ring-1 ring-black/5 dark:ring-white/10 z-50 py-1 origin-top animate-in fade-in zoom-in duration-100">
-                  <div className="px-3 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Rozsahy</div>
-                  {presets.map((preset) => (
-                    <button
-                      key={preset.type}
-                      onClick={() => handlePresetChange(preset.type)}
-                      className={`w-full flex items-center justify-between px-3 py-2 text-sm transition-colors
-                        ${dateFilter.type === preset.type 
-                          ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' 
-                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-                        }`}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <span className={dateFilter.type === preset.type ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'}>
-                          {preset.icon}
-                        </span>
-                        <span className="font-medium">{preset.label}</span>
-                      </div>
-                      {dateFilter.type === preset.type && <Check className="w-4 h-4" />}
-                    </button>
-                  ))}
+          {/* Custom Styled Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              aria-expanded={isDropdownOpen}
+              className="w-full h-9 flex items-center justify-between bg-surface-2 hover:bg-surface-3 px-3 rounded-row hairline transition-colors text-left"
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-accent shrink-0">
+                  {activeIcon}
+                </span>
+                <span className="text-fg font-medium text-sm truncate">
+                  {activeLabel}
+                </span>
+              </div>
+              <ChevronDown className={`w-4 h-4 text-fg-subtle transition-transform duration-200 shrink-0 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
 
-                  {availableMonths.length > 0 && (
-                    <>
-                      <div className="px-3 py-1 mt-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider border-t dark:border-gray-700 pt-2">Konkrétní měsíc</div>
-                      {availableMonths.map((month) => (
+            {isDropdownOpen && (
+              <div className="absolute left-0 mt-2 w-full max-h-[350px] overflow-y-auto glass shadow-pop rounded-card z-50 p-1 origin-top">
+                <div className="px-2.5 pt-1.5 pb-1 text-[11px] font-semibold text-fg-subtle">Rozsahy</div>
+                {presets.map((preset) => (
+                  <button
+                    key={preset.type}
+                    onClick={() => handlePresetChange(preset.type)}
+                    className={itemClass(dateFilter.type === preset.type)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className={dateFilter.type === preset.type ? 'text-accent' : 'text-fg-subtle'}>
+                        {preset.icon}
+                      </span>
+                      <span className="font-medium">{preset.label}</span>
+                    </div>
+                    {dateFilter.type === preset.type && <Check className="w-4 h-4" />}
+                  </button>
+                ))}
+
+                {availableMonths.length > 0 && (
+                  <>
+                    <div className="px-2.5 pt-2.5 pb-1 mt-1 text-[11px] font-semibold text-fg-subtle hairline-t">Konkrétní měsíc</div>
+                    {availableMonths.map((month) => {
+                      const isActive = dateFilter.type === 'month' && dateFilter.monthValue === month.value;
+                      return (
                         <button
                           key={month.value}
                           onClick={() => handlePresetChange('month', month.value)}
-                          className={`w-full flex items-center justify-between px-3 py-2 text-sm transition-colors
-                            ${dateFilter.type === 'month' && dateFilter.monthValue === month.value 
-                              ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' 
-                              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-                            }`}
+                          className={itemClass(isActive)}
                         >
-                          <div className="flex items-center space-x-3">
-                            <span className={dateFilter.type === 'month' && dateFilter.monthValue === month.value ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'}>
+                          <div className="flex items-center gap-3">
+                            <span className={isActive ? 'text-accent' : 'text-fg-subtle'}>
                               <CalendarCheck2 className="w-4 h-4" />
                             </span>
                             <span className="font-medium">{month.label}</span>
                           </div>
-                          {dateFilter.type === 'month' && dateFilter.monthValue === month.value && <Check className="w-4 h-4" />}
+                          {isActive && <Check className="w-4 h-4" />}
                         </button>
-                      ))}
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-            
-            <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1.5 italic truncate">{period}</p>
+                      );
+                    })}
+                  </>
+                )}
+              </div>
+            )}
           </div>
+          
+          <p className="text-xs text-fg-subtle mt-1.5 truncate tnum">{period}</p>
         </div>
 
         {/* Custom Range Inputs */}
         {dateFilter.type === 'custom' && (
-          <div className="mt-2 flex items-center space-x-2 animate-in slide-in-from-top-2 duration-200">
-            <div className="relative flex-1">
-              <input 
-                type="date" 
-                value={dateFilter.startDate}
-                onChange={(e) => handleCustomDateChange('startDate', e.target.value)}
-                className="w-full text-[11px] bg-gray-50 dark:bg-gray-750 border border-gray-200 dark:border-gray-600 rounded-md px-2 py-1.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
-              />
-            </div>
-            <span className="text-gray-400 text-[10px] font-bold">DO</span>
-            <div className="relative flex-1">
-              <input 
-                type="date" 
-                value={dateFilter.endDate}
-                onChange={(e) => handleCustomDateChange('endDate', e.target.value)}
-                className="w-full text-[11px] bg-gray-50 dark:bg-gray-750 border border-gray-200 dark:border-gray-600 rounded-md px-2 py-1.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
-              />
-            </div>
+          <div className="mt-2 flex items-center gap-2">
+            <input 
+              type="date" 
+              value={dateFilter.startDate}
+              onChange={(e) => handleCustomDateChange('startDate', e.target.value)}
+              className="flex-1 min-w-0 h-8 text-xs bg-surface-2 hairline rounded-row px-2 text-fg tnum outline-none focus:shadow-[0_0_0_1px_#0a84ff_inset,0_0_0_3px_rgba(10,132,255,.45)] transition-shadow"
+            />
+            <span className="text-fg-subtle text-xs">do</span>
+            <input 
+              type="date" 
+              value={dateFilter.endDate}
+              onChange={(e) => handleCustomDateChange('endDate', e.target.value)}
+              className="flex-1 min-w-0 h-8 text-xs bg-surface-2 hairline rounded-row px-2 text-fg tnum outline-none focus:shadow-[0_0_0_1px_#0a84ff_inset,0_0_0_3px_rgba(10,132,255,.45)] transition-shadow"
+            />
           </div>
         )}
         
         {/* Active Filter Indication bar at bottom */}
         {dateFilter.type !== 'all' && (
-          <div className="absolute bottom-0 left-0 w-full h-1 bg-emerald-500"></div>
+          <div className="absolute bottom-0 left-4 right-4 h-0.5 rounded-full bg-accent"></div>
         )}
       </div>
 
       {/* Total Answers Card */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-start space-x-4 transition-colors">
-        <div className="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg shrink-0">
-          <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-        </div>
-        <div>
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Celkový počet odpovědí</p>
-          <p className="text-3xl font-bold text-gray-900 dark:text-white">{totalAnswers}</p>
-        </div>
+      <div className="bg-surface-1 hairline rounded-card px-4 py-3.5">
+        <p className="flex items-center gap-1.5 text-xs text-fg-muted mb-0.5">
+          <Users className="w-3.5 h-3.5 text-accent" />
+          Celkový počet odpovědí
+        </p>
+        <p className="text-[26px] font-semibold tracking-[-0.02em] tnum">{formatInt(totalAnswers)}</p>
       </div>
     </div>
   );
